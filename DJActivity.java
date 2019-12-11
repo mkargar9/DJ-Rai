@@ -27,9 +27,15 @@ public class DJActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dj);
 
         list = new ArrayList<String>();
-        list.add("\"Despacito\" by Luis Fonsi");
-        list.add("\"Video Games\" by Lana Del Rey");
-        list.add("\"Up All Night\" by One Direction");
+        list.add("\"Despacito\" by Luis Fonsi" +
+                "\n"+ " % likes" + " % dislikes"+
+                "\n" + " votes to play next");
+        list.add("\"Video Games\" by Lana Del Rey" +
+                "\n"+ " % likes" + " % dislikes"+
+                "\n" + " votes to play next");
+        list.add("\"All I Want for Christmas\" by Mariah Carey" +
+                "\n"+ " % likes" + " % dislikes"+
+                "\n" + " votes to play next");
 
         lv = (ListView)findViewById(R.id.song_listview);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,list);
