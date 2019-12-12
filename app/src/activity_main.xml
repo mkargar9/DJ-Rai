@@ -16,50 +16,52 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="32dp" />
+
         <TextView
             android:id="@+id/startScreen"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Please start by pressing the button below to join the room"
-            android:textSize="30sp" />
+            android:gravity="center_horizontal"
+            android:text="Listen to songs together!"
+            android:textSize="28sp" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="20dp" />
+            android:layout_height="128dp" />
+
+        <EditText
+            android:id="@+id/enterRoomID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:hint="Please enter ROOM ID"
+            android:inputType="textPersonName" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="32dp" />
 
         <Button
-            android:id="@+id/joinserver_button"
+            android:id="@+id/joinroom_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="join the room"
-            android:textSize="30sp" />
+            android:textSize="32sp" />
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="175dp" />
+            android:layout_height="256dp" />
 
-        <Button
-            android:id="@+id/test_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Testing firebase skip updates" />
-
-        <TextView
-            android:id="@+id/debugPrintSkip"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Current Skip Votes: " />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="20dp" />
 
         <Button
             android:id="@+id/instructions_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="How-to"
-            android:textSize="30sp" />
+            android:textSize="32sp" />
 
 
     </LinearLayout>
