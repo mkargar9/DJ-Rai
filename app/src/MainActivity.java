@@ -1,5 +1,6 @@
 package com.example.djrai;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,7 +10,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,23 +24,23 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     Button start_button;
     Button instructions_button;
-    Button test_button;
-    TextView debugPrintSkip;
-    Boolean first = true;
+    EditText roomIDEditText;
     FirebaseDatabase database;
     DatabaseReference rootRef;
+    DatabaseReference roomRef;
     DatabaseReference songsRef;
     DatabaseReference attendeesRef;
     DatabaseReference chooseDJRef;
     DatabaseReference skipRef;
-    int currentSkipVotes;
+    String roomID;
+    boolean first;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        start_button = (Button)findViewById(R.id.joinserver_button);
+        start_button = (Button)findViewById(R.id.joinroom_button);
         start_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,32 +54,31 @@ public class MainActivity extends AppCompatActivity {
                 startInstructions();
             }
         });
-        test_button = (Button) findViewById(R.id.test_button);
-        test_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                testFirebaseSkipUpdates();
-            }
-        });
+        roomIDEditText = (EditText) findViewById(R.id.enterRoomID);
 
-        debugPrintSkip = (TextView) findViewById(R.id.debugPrintSkip);
         initializeDatabase();
-        createSkipReader();
+        //createSkipReader();
     }
 
     public void initializeDatabase() {
         database = FirebaseDatabase.getInstance();
         rootRef = database.getReference();
-        songsRef = rootRef.child("Songs");
-        attendeesRef = rootRef.child("attendees");
-        chooseDJRef = rootRef.child("choose dj");
-        skipRef = rootRef.child("skip");
+        /*
+        roomRef = rootRef.child("room1");
+        songsRef = roomRef.child("songs");
+        attendeesRef = roomRef.child("attendees");
+        chooseDJRef = roomRef.child("djVotes");
+        skipRef = roomRef.child("skipVotes");
+
+         */
     }
 
+    /*
     public void updateSkipVotes() {
         skipRef.setValue(currentSkipVotes + 1);
     }
-
+    */
+/*
     public void createSkipReader() {
         skipRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -85,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
                 // whenever data at this location is updated.
                 Integer value = dataSnapshot.getValue(Integer.class);
                 currentSkipVotes = value;
-                debugPrintSkip.setText("Current Skip Votes from firebase: " + currentSkipVotes);
                 Log.d(TAG, "Skip votes value is: " + currentSkipVotes);
             }
 
@@ -97,15 +98,39 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+ */
+
     public void startRoom()
     {
-        //if first to join server, start DJActivity
-        Intent DJIntent = new Intent(this, DJActivity.class);
-        startActivity(DJIntent);
-        //else, start Listener Activity
-        if (!first) {
-            Intent ListenerIntent = new Intent(this, ListenerActivity.class);
-            startActivity(ListenerIntent);
+        roomID = roomIDEditText.getText().toString().trim();
+        if (roomID.length() == 0) {
+            // when roomID is blank, make toast popup here and ask user to enter room name again
+            // TODO
+        }
+        else {
+            rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    first = (dataSnapshot.hasChild(roomID));
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to read value
+                    Log.w(TAG, "Failed to read value when checking if room exists.", error.toException());
+                }
+            });
+
+            if (first == true) {
+                //if first to join server, start DJActivity
+                Intent DJIntent = new Intent(this, DJActivity.class);
+                startActivity(DJIntent);
+            }
+            //else, start Listener Activity
+            else {
+                Intent ListenerIntent = new Intent(this, ListenerActivity.class);
+                startActivity(ListenerIntent);
+            }
         }
     }
 
@@ -116,8 +141,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(InstructionsIntent);
     }
 
-    public void testFirebaseSkipUpdates()
-    {
-        updateSkipVotes();
-    }
 }
