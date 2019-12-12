@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "21021930758",
+    "firebase_url": "https://dj-rai.firebaseio.com",
+    "project_id": "dj-rai",
+    "storage_bucket": "dj-rai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21021930758:android:6d51e476110c92af82da87",
+        "android_client_info": {
+          "package_name": "com.example.djrai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "21021930758-rqcbb4rcjsukqh9ap4spsuphub2ogt23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwtcQwXRhMIRlqZBn5nuB3N8y2g000C2E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "21021930758-rqcbb4rcjsukqh9ap4spsuphub2ogt23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
