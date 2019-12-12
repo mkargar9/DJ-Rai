@@ -20,6 +20,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     static FirebaseDatabase database;
@@ -29,10 +32,15 @@ public class MainActivity extends AppCompatActivity {
     static DatabaseReference attendeesRef;
     static DatabaseReference chooseDJRef;
     static DatabaseReference skipRef;
+    static DatabaseReference attendeesCountRef;
+    static DatabaseReference totalJoinsEverRef;
+    static String roomID;
+    static String userID;
+    static int totalJoinsEver;
+    static int currentJoins;
     Button start_button;
     Button instructions_button;
     EditText roomIDEditText;
-    String roomID;
 
 
     @Override
@@ -62,14 +70,6 @@ public class MainActivity extends AppCompatActivity {
     public void initializeDatabase() {
         database = FirebaseDatabase.getInstance();
         rootRef = database.getReference();
-        /*
-        roomRef = rootRef.child("room1");
-        songsRef = roomRef.child("songs");
-        attendeesRef = roomRef.child("attendees");
-        chooseDJRef = roomRef.child("djVotes");
-        skipRef = roomRef.child("skipVotes");
-
-         */
     }
 
     /*
@@ -141,13 +141,127 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goToDJActivity() {
+        Person person = new Person("DJ", 0);
+        Song song = new Song(0, 0, 0);
+        Map<String, Person> peopleList = new HashMap<String, Person>();
+        peopleList.put("1", person);
+        Map<String, Song> songList = new HashMap<String, Song>();
+        songList.put("Despacito by Luis Fonsi", song);
+        Room room = new Room(0, 0, 1, 1, peopleList, songList);
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/" + roomID + "/", room.toMap());
+        rootRef.updateChildren(childUpdates);
+
         Intent DJIntent = new Intent(this, DJActivity.class);
         startActivity(DJIntent);
     }
 
     public void goToListenerActivity() {
+        roomRef = rootRef.child(roomID);
+        attendeesRef = roomRef.child("peopleList");
+        attendeesCountRef = roomRef.child("attendeesCount");
+        totalJoinsEverRef = roomRef.child("totalJoinsEver");
+
+
+        roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                totalJoinsEver = dataSnapshot.child("totalJoinsEver").getValue(Integer.class);
+                currentJoins = dataSnapshot.child("attendeesCount").getValue(Integer.class);
+
+
+                //totalJoinsEver = totalJoinsEver + 1;
+                //currentJoins = currentJoins + 1;
+                //userID = "" + totalJoinsEver;
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value when joining", error.toException());
+            }
+        });
+
+        Toast toast = Toast.makeText(getApplicationContext(),
+                "totalJoinsEver is " + totalJoinsEver + " Count is " + currentJoins,
+                Toast.LENGTH_SHORT);
+
+        toast.show();
+        //attendeesRef.child(userID).child("role").setValue("regular");
+        //attendeesRef.child(userID).child("votesNextDJ").setValue(0);
+
+        //attendeesCountRef.setValue(currentJoins);
+        //totalJoinsEverRef.setValue(totalJoinsEver);
+
+
         Intent ListenerIntent = new Intent(this, ListenerActivity.class);
         startActivity(ListenerIntent);
     }
 
+    public void getValuesOnJoin
+
+    public static class Person {
+        public String role;
+        public int votesNextDJ;
+
+        public Person() {
+            // Default constructor
+        }
+
+        public Person(String role, int votesNextDJ) {
+            this.role = role;
+            this.votesNextDJ = votesNextDJ;
+        }
+    }
+
+    public static class Song {
+        public int dislikes;
+        public int likes;
+        public int votesPlayNext;
+
+        public Song() {
+            // Default constructor
+        }
+
+        public Song(int dislikes, int likes, int votesPlayNext) {
+            this.dislikes = dislikes;
+            this.likes = likes;
+            this.votesPlayNext = votesPlayNext;
+        }
+    }
+
+    public static class Room {
+        public int newDJVotes;
+        public int skipVotes;
+        public int totalJoinsEver;
+        public int attendeesCount;
+        public Map<String, Person> peopleList;
+        public Map<String, Song> songList;
+
+        public Room() {
+            // Default constructor
+        }
+
+        public Room(int newDJVotes, int skipVotes, int totalJoinsEver, int attendeesCount,
+                    Map<String, Person> peopleList, Map<String, Song> songList) {
+            this.newDJVotes = newDJVotes;
+            this.skipVotes = skipVotes;
+            this.totalJoinsEver = totalJoinsEver;
+            this.attendeesCount = attendeesCount;
+            this.peopleList = peopleList;
+            this.songList = songList;
+        }
+
+        public Map<String, Object> toMap() {
+            HashMap<String, Object> result = new HashMap<>();
+            result.put("newDJVotes", newDJVotes);
+            result.put("skipVotes", skipVotes);
+            result.put("totalJoinsEver", totalJoinsEver);
+            result.put("attendeesCount", attendeesCount);
+            result.put("peopleList", peopleList);
+            result.put("songList", songList);
+
+            return result;
+        }
+    }
 }
