@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference chooseDJRef;
     DatabaseReference skipRef;
     String roomID;
-    boolean first;
 
 
     @Override
@@ -105,13 +104,28 @@ public class MainActivity extends AppCompatActivity {
         roomID = roomIDEditText.getText().toString().trim();
         if (roomID.length() == 0) {
             // when roomID is blank, make toast popup here and ask user to enter room name again
-            // TODO
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "Room name is blank. Please try again.",
+                    Toast.LENGTH_SHORT);
+
+            toast.show();
         }
         else {
+            final Intent ListenerIntent = new Intent(this, ListenerActivity.class);
+            final Intent DJIntent = new Intent(this, DJActivity.class);
+
             rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    first = (dataSnapshot.hasChild(roomID));
+                    if (dataSnapshot.hasChild(roomID)) {
+                        // if room already exists, join as listener
+                        startActivity(ListenerIntent);
+                    }
+                    else {
+                        //if room does not exist, person becomes dj and room is created
+                       
+                        startActivity(DJIntent);
+                    }
                 }
 
                 @Override
@@ -120,17 +134,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.w(TAG, "Failed to read value when checking if room exists.", error.toException());
                 }
             });
-
-            if (first == true) {
-                //if first to join server, start DJActivity
-                Intent DJIntent = new Intent(this, DJActivity.class);
-                startActivity(DJIntent);
-            }
-            //else, start Listener Activity
-            else {
-                Intent ListenerIntent = new Intent(this, ListenerActivity.class);
-                startActivity(ListenerIntent);
-            }
         }
     }
 
