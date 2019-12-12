@@ -22,16 +22,16 @@ import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    static FirebaseDatabase database;
+    static DatabaseReference rootRef;
+    static DatabaseReference roomRef;
+    static DatabaseReference songsRef;
+    static DatabaseReference attendeesRef;
+    static DatabaseReference chooseDJRef;
+    static DatabaseReference skipRef;
     Button start_button;
     Button instructions_button;
     EditText roomIDEditText;
-    FirebaseDatabase database;
-    DatabaseReference rootRef;
-    DatabaseReference roomRef;
-    DatabaseReference songsRef;
-    DatabaseReference attendeesRef;
-    DatabaseReference chooseDJRef;
-    DatabaseReference skipRef;
     String roomID;
 
 
@@ -111,20 +111,16 @@ public class MainActivity extends AppCompatActivity {
             toast.show();
         }
         else {
-            final Intent ListenerIntent = new Intent(this, ListenerActivity.class);
-            final Intent DJIntent = new Intent(this, DJActivity.class);
-
             rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot.hasChild(roomID)) {
                         // if room already exists, join as listener
-                        startActivity(ListenerIntent);
+                        goToListenerActivity();
                     }
                     else {
                         //if room does not exist, person becomes dj and room is created
-                       
-                        startActivity(DJIntent);
+                        goToDJActivity();
                     }
                 }
 
@@ -142,6 +138,16 @@ public class MainActivity extends AppCompatActivity {
         //to be created later.....
         Intent InstructionsIntent = new Intent(this, InstructionsActivity.class);
         startActivity(InstructionsIntent);
+    }
+
+    public void goToDJActivity() {
+        Intent DJIntent = new Intent(this, DJActivity.class);
+        startActivity(DJIntent);
+    }
+
+    public void goToListenerActivity() {
+        Intent ListenerIntent = new Intent(this, ListenerActivity.class);
+        startActivity(ListenerIntent);
     }
 
 }
