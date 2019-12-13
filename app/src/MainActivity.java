@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     static String userID;
     static int totalJoinsEver;
     static int currentJoins;
+    static int currentSkipVotes;
+    static int currentVotesForNewDJ;
     Button start_button;
     Button instructions_button;
     EditText roomIDEditText;
@@ -72,13 +75,16 @@ public class MainActivity extends AppCompatActivity {
         rootRef = database.getReference();
     }
 
-    /*
-    public void updateSkipVotes() {
+
+    public static void updateSkipVotes() {
         skipRef.setValue(currentSkipVotes + 1);
     }
-    */
-/*
-    public void createSkipReader() {
+
+    public static void updateNewDJVotes() {
+        chooseDJRef.setValue(currentVotesForNewDJ + 1);
+    }
+
+    public static void createSkipReader() {
         skipRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -97,7 +103,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
- */
+    public static void createDJVotesReader() {
+        chooseDJRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                Integer value = dataSnapshot.getValue(Integer.class);
+                currentVotesForNewDJ = value;
+                Log.d(TAG, "Number of people who want a new DJ is " + currentVotesForNewDJ);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read dj votes value.", error.toException());
+            }
+        });
+    }
 
     public void startRoom()
     {
@@ -161,6 +184,14 @@ public class MainActivity extends AppCompatActivity {
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/" + roomID + "/", room.toMap());
         rootRef.updateChildren(childUpdates);
+        roomRef = rootRef.child(roomID);
+        attendeesRef = roomRef.child("peopleList");
+        attendeesCountRef = roomRef.child("attendeesCount");
+        totalJoinsEverRef = roomRef.child("totalJoinsEver");
+        skipRef = roomRef.child("skipVotes");
+        songsRef = roomRef.child("songList");
+        chooseDJRef = roomRef.child("newDJVotes");
+        createSkipReader();
         goToDJActivity();
     }
 
@@ -169,6 +200,10 @@ public class MainActivity extends AppCompatActivity {
         attendeesRef = roomRef.child("peopleList");
         attendeesCountRef = roomRef.child("attendeesCount");
         totalJoinsEverRef = roomRef.child("totalJoinsEver");
+        skipRef = roomRef.child("skipVotes");
+        songsRef = roomRef.child("songList");
+        chooseDJRef = roomRef.child("newDJVotes");
+        createSkipReader();
         final Person person = new Person("regular", 0);
         final Map<String, Person> peopleList = new HashMap<String, Person>();
         final Map<String, Object> childUpdates = new HashMap<>();
@@ -178,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 totalJoinsEver = dataSnapshot.child("totalJoinsEver").getValue(Integer.class);
                 currentJoins = dataSnapshot.child("attendeesCount").getValue(Integer.class);
-                Map<String, Person> currentPeopleInRoom = (Map<String, Person>) dataSnapshot.child("peopleList").getValue();
+                ArrayList<Person> currentPeopleInRoom = (ArrayList<Person>) dataSnapshot.child("peopleList").getValue();
 
                 totalJoinsEver = totalJoinsEver + 1;
                 currentJoins = currentJoins + 1;
@@ -186,8 +221,8 @@ public class MainActivity extends AppCompatActivity {
                 totalJoinsEverRef.setValue(totalJoinsEver);
                 userID = "" + totalJoinsEver;
 
-                for (Map.Entry<String, Person> entry : currentPeopleInRoom.entrySet()) {
-                    peopleList.put(entry.getKey(), entry.getValue());
+                for (int i = 0; i < currentPeopleInRoom.size(); i++) {
+                    peopleList.put("" + i, currentPeopleInRoom.get(i));
                 }
 
                 peopleList.put(userID, person);
