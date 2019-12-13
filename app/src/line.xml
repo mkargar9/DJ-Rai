@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/songNameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Song Name" />
+
+    <TextView
+        android:id="@+id/likesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Likes" />
+
+    <TextView
+        android:id="@+id/dislikesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dislikes" />
+
+    <TextView
+        android:id="@+id/votesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Votes" />
+
+    <ImageView
+        android:id="@+id/playButtonImage"
+        android:layout_width="30sp"
+        android:layout_height="30sp"
+        android:layout_marginLeft="10sp"
+        android:layout_marginTop="10sp"
+        android:layout_marginRight="10sp"
+        android:src="@drawable/baseline_play_circle_outline_24" />
+
+
+</LinearLayout>
