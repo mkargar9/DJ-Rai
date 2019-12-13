@@ -178,8 +178,7 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 totalJoinsEver = dataSnapshot.child("totalJoinsEver").getValue(Integer.class);
                 currentJoins = dataSnapshot.child("attendeesCount").getValue(Integer.class);
-                //grabCurrentPeopleInRoom((Map<String, Person>) dataSnapshot.child("peopleList").getValue());
-
+                Map<String, Person> currentPeopleInRoom = (Map<String, Person>) dataSnapshot.child("peopleList").getValue();
 
                 totalJoinsEver = totalJoinsEver + 1;
                 currentJoins = currentJoins + 1;
@@ -187,10 +186,16 @@ public class MainActivity extends AppCompatActivity {
                 totalJoinsEverRef.setValue(totalJoinsEver);
                 userID = "" + totalJoinsEver;
 
+                for (Map.Entry<String, Person> entry : currentPeopleInRoom.entrySet()) {
+                    peopleList.put(entry.getKey(), entry.getValue());
+                }
+
                 peopleList.put(userID, person);
 
                 childUpdates.put("/peopleList/", peopleList);
                 roomRef.updateChildren(childUpdates);
+
+
                 goToListenerActivity();
             }
 
@@ -200,10 +205,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Failed to read value when joining", error.toException());
             }
         });
-    }
-
-    public void grabCurrentPeopleInRoom(Map<String, Person> people) {
-
     }
 
     public static class Person {
