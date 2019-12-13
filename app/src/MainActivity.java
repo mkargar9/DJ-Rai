@@ -1,17 +1,16 @@
 package com.example.djrai;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
-import android.content.DialogInterface;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +25,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     static FirebaseDatabase database;
     static DatabaseReference rootRef;
     static DatabaseReference roomRef;
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     static int currentSkipVotes;
     static int currentVotesForNewDJ;
     Button start_button;
+    Button instructions_button;
     EditText roomIDEditText;
 
 
@@ -56,9 +57,57 @@ public class MainActivity extends AppCompatActivity {
                 startRoom();
             }
         });
+        instructions_button = (Button)findViewById(R.id.instructions_button);
+        instructions_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startInstructions();
+            }
+        });
         roomIDEditText = (EditText) findViewById(R.id.enterRoomID);
 
         initializeDatabase();
+        checkPermission();
+    }
+
+    public void checkPermission() {
+        if (ActivityCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            } else {
+                // request the permission
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
+            }
+        } else {
+            // Permission has already been granted
+            start_button.setEnabled(true);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                    start_button.setEnabled(true);
+                } else {
+                    // permission denied
+                    start_button.setEnabled(false);
+                }
+                return;
+            }
+        }
     }
 
     public void initializeDatabase() {
@@ -113,6 +162,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public static void createSongsListReader() {
+        songsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public void startRoom()
     {
         roomID = roomIDEditText.getText().toString().trim();
@@ -147,6 +210,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void startInstructions()
+    {
+        //to be created later.....
+        Intent InstructionsIntent = new Intent(this, InstructionsActivity.class);
+        startActivity(InstructionsIntent);
+    }
 
     public void goToDJActivity() {
         Intent DJIntent = new Intent(this, DJActivity.class);
