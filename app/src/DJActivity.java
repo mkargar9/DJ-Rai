@@ -26,15 +26,13 @@ public class DJActivity extends AppCompatActivity {
     File[] inn;
     String path = Environment.getExternalStorageDirectory().getPath();
     MediaPlayer mp;
+    Boolean setPlaying = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dj);
 
         list = new ArrayList<String>();
-        //list.add("\"15_Change\" by Lana Del Rey");
-        //list.add("\"02_Lust_For_Life_(feat._The_Weekndr\" by Lana Del Rey");
-        //list.add("\"04_Cherry\" by Lana Del Rey");
         list.add("\"change\" by Lana Del Rey");
         list.add("\"cherry\" by Lana Del Rey");
         list.add("\"love\" by Lana Del Rey");
@@ -47,31 +45,62 @@ public class DJActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String name = parent.getItemAtPosition(position).toString();
-                String songName = name.substring(0, name.indexOf("by")-1).replaceAll("\"", "");
+                System.out.println(name);
+                String songName = name.substring(1, name.indexOf("by")-2);
                 Toast.makeText(getApplicationContext(), songName, Toast.LENGTH_LONG).show();
-                //path = "file:///storage/emulated/0/" + songName +".mp3";
-                //path +=  "/" + songName + ".mp3";
-                //System.out.println(path);
-
-                MediaPlayer mp = MediaPlayer.create(DJActivity.this, R.raw.change);
-                //this should work!!! but it doesn't play anything.....
-                try
+                System.out.println(songName);
+                if (!setPlaying)
                 {
-                    mp.prepare();
-                    mp.start();
-
+                    playSound(songName);
+                    setPlaying = true;
                 }
-                catch (IllegalArgumentException e)
+                else
                 {
-                }
-                catch (IllegalStateException e)
-                {
-                }
-                catch (IOException e)
-                {
+                    stopPlayer();
+                    setPlaying = false;
+                    playSound(songName);
                 }
             }
         });
+
+    }
+
+    public void playSound(String SongName)
+    {
+        if (mp == null)
+        {
+            if ( SongName == "change")
+            {
+                mp = MediaPlayer.create(DJActivity.this, R.raw.change);
+
+            }
+            else if (SongName == "cherry")
+            {
+                mp = MediaPlayer.create(DJActivity.this, R.raw.cherry);
+
+            }
+            else
+            {
+                mp = MediaPlayer.create(DJActivity.this, R.raw.love);
+            }
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
+            {
+                @Override
+                public void onCompletion(MediaPlayer mp2)
+                {
+                    setPlaying = false;
+                    stopPlayer();
+                }
+            });
+        }
+        mp.start();
+    }
+
+    private void stopPlayer() {
+        if (mp != null) {
+            mp.release();
+            mp = null;
+        }
     }
 
 }
