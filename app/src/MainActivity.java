@@ -116,11 +116,11 @@ public class MainActivity extends AppCompatActivity {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot.hasChild(roomID)) {
                         // if room already exists, join as listener
-                        goToListenerActivity();
+                        joinRoomAsListener();
                     }
                     else {
                         //if room does not exist, person becomes dj and room is created
-                        goToDJActivity();
+                        joinRoomAsDJ();
                     }
                 }
 
@@ -141,6 +141,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goToDJActivity() {
+        Intent DJIntent = new Intent(this, DJActivity.class);
+        startActivity(DJIntent);
+    }
+
+    public void goToListenerActivity() {
+        Intent ListenerIntent = new Intent(this, ListenerActivity.class);
+        startActivity(ListenerIntent);
+    }
+
+    public void joinRoomAsDJ() {
         Person person = new Person("DJ", 0);
         Song song = new Song(0, 0, 0);
         Map<String, Person> peopleList = new HashMap<String, Person>();
@@ -151,28 +161,37 @@ public class MainActivity extends AppCompatActivity {
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/" + roomID + "/", room.toMap());
         rootRef.updateChildren(childUpdates);
-
-        Intent DJIntent = new Intent(this, DJActivity.class);
-        startActivity(DJIntent);
+        goToDJActivity();
     }
 
-    public void goToListenerActivity() {
+    public void joinRoomAsListener() {
         roomRef = rootRef.child(roomID);
         attendeesRef = roomRef.child("peopleList");
         attendeesCountRef = roomRef.child("attendeesCount");
         totalJoinsEverRef = roomRef.child("totalJoinsEver");
-
+        final Person person = new Person("regular", 0);
+        final Map<String, Person> peopleList = new HashMap<String, Person>();
+        final Map<String, Object> childUpdates = new HashMap<>();
 
         roomRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 totalJoinsEver = dataSnapshot.child("totalJoinsEver").getValue(Integer.class);
                 currentJoins = dataSnapshot.child("attendeesCount").getValue(Integer.class);
+                //grabCurrentPeopleInRoom((Map<String, Person>) dataSnapshot.child("peopleList").getValue());
 
 
-                //totalJoinsEver = totalJoinsEver + 1;
-                //currentJoins = currentJoins + 1;
-                //userID = "" + totalJoinsEver;
+                totalJoinsEver = totalJoinsEver + 1;
+                currentJoins = currentJoins + 1;
+                attendeesCountRef.setValue(currentJoins);
+                totalJoinsEverRef.setValue(totalJoinsEver);
+                userID = "" + totalJoinsEver;
+
+                peopleList.put(userID, person);
+
+                childUpdates.put("/peopleList/", peopleList);
+                roomRef.updateChildren(childUpdates);
+                goToListenerActivity();
             }
 
             @Override
@@ -181,24 +200,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.w(TAG, "Failed to read value when joining", error.toException());
             }
         });
-
-        Toast toast = Toast.makeText(getApplicationContext(),
-                "totalJoinsEver is " + totalJoinsEver + " Count is " + currentJoins,
-                Toast.LENGTH_SHORT);
-
-        toast.show();
-        //attendeesRef.child(userID).child("role").setValue("regular");
-        //attendeesRef.child(userID).child("votesNextDJ").setValue(0);
-
-        //attendeesCountRef.setValue(currentJoins);
-        //totalJoinsEverRef.setValue(totalJoinsEver);
-
-
-        Intent ListenerIntent = new Intent(this, ListenerActivity.class);
-        startActivity(ListenerIntent);
     }
 
-    public void getValuesOnJoin
+    public void grabCurrentPeopleInRoom(Map<String, Person> people) {
+
+    }
 
     public static class Person {
         public String role;
