@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     static int currentSkipVotes;
     static int currentVotesForNewDJ;
     Button start_button;
-    Button instructions_button;
     EditText roomIDEditText;
 
 
@@ -57,17 +56,9 @@ public class MainActivity extends AppCompatActivity {
                 startRoom();
             }
         });
-        instructions_button = (Button)findViewById(R.id.instructions_button);
-        instructions_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startInstructions();
-            }
-        });
         roomIDEditText = (EditText) findViewById(R.id.enterRoomID);
 
         initializeDatabase();
-        //createSkipReader();
     }
 
     public void initializeDatabase() {
@@ -156,12 +147,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void startInstructions()
-    {
-        //to be created later.....
-        Intent InstructionsIntent = new Intent(this, InstructionsActivity.class);
-        startActivity(InstructionsIntent);
-    }
 
     public void goToDJActivity() {
         Intent DJIntent = new Intent(this, DJActivity.class);
