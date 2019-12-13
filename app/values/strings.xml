@@ -1,1 +1,5 @@
-
+<resources>
+    <string name="app_name">DJ Rai</string>
+    <string name="appwidget_text">Djjj</string>
+    <string name="add_widget">Add widget</string>
+</resources>
