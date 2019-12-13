@@ -51,6 +51,16 @@
             android:text="join the room"
             android:textSize="32sp" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="128dp" />
+
+        <Button
+            android:id="@+id/instructions_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="How-to"
+            android:textSize="32sp" />
 
     </LinearLayout>
 
