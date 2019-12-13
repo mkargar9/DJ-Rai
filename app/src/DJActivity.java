@@ -33,9 +33,12 @@ public class DJActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dj);
 
         list = new ArrayList<String>();
-        list.add("\"change\" by Lana Del Rey");
-        list.add("\"cherry\" by Lana Del Rey");
-        list.add("\"love\" by Lana Del Rey");
+        list.add("\"change\" by Lana Del Rey" + "\n " +
+            MainActivity.getCurrentSkipVotes() + " votes to skip");
+        list.add("\"cherry\" by Lana Del Rey" + "\n " +
+                MainActivity.getCurrentSkipVotes() + " votes to skip");
+        list.add("\"love\" by Lana Del Rey" + "\n " +
+                MainActivity.getCurrentSkipVotes() + " votes to skip");
 
         lv = (ListView)findViewById(R.id.song_listview);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,list);
@@ -69,12 +72,12 @@ public class DJActivity extends AppCompatActivity {
     {
         if (mp == null)
         {
-            if ( SongName == "change")
+            if ( SongName.equals("change") )
             {
                 mp = MediaPlayer.create(DJActivity.this, R.raw.change);
 
             }
-            else if (SongName == "cherry")
+            else if (SongName.equals("cherry"))
             {
                 mp = MediaPlayer.create(DJActivity.this, R.raw.cherry);
 
