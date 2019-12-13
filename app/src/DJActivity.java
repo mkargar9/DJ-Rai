@@ -2,29 +2,30 @@ package com.example.djrai;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
+import java.io.FileFilter;
 import java.util.ArrayList;
-import java.util.List;
-import android.media.MediaPlayer;
+import java.util.HashMap;
 
 public class DJActivity extends AppCompatActivity {
     ListView lv;
-    List<String> list;
-    File[] inn;
-    String path = Environment.getExternalStorageDirectory().getPath();
+    ArrayList<HashMap<String, Object>> mData = new ArrayList<>();
+    MyCustomAdapter mAdapter;
+    File directory;
+    String path;
     MediaPlayer mp;
     Boolean setPlaying = false;
     @Override
@@ -32,60 +33,59 @@ public class DJActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dj);
 
-        list = new ArrayList<String>();
-        list.add("\"change\" by Lana Del Rey" + "\n " +
-            MainActivity.getCurrentSkipVotes() + " votes to skip");
-        list.add("\"cherry\" by Lana Del Rey" + "\n " +
-                MainActivity.getCurrentSkipVotes() + " votes to skip");
-        list.add("\"love\" by Lana Del Rey" + "\n " +
-                MainActivity.getCurrentSkipVotes() + " votes to skip");
+        mAdapter = new MyCustomAdapter();
 
         lv = (ListView)findViewById(R.id.song_listview);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,list);
-        lv.setAdapter(arrayAdapter);
-
+        lv.setAdapter(mAdapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String name = parent.getItemAtPosition(position).toString();
-                System.out.println(name);
-                String songName = name.substring(1, name.indexOf("by")-2);
-                Toast.makeText(getApplicationContext(), songName, Toast.LENGTH_LONG).show();
-                System.out.println(songName);
-                if (!setPlaying)
-                {
-                    playSound(songName);
+                HashMap<String, Object> song = mAdapter.getItem(position);
+                String songName = (String)song.get("songName");
+
+                if (!setPlaying) {
+                    playSong(songName);
                     setPlaying = true;
                 }
-                else
-                {
+                else {
                     stopPlayer();
                     setPlaying = false;
-                    playSound(songName);
+                    playSong(songName);
                 }
             }
         });
 
+        // hard code location because android emulator places files here by default
+        path = "/sdcard/Download/";
+        directory = new File(path);
+        // filter files in that folder to only the ones that end with .mp3
+        File[] songFiles = directory.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return (file.getPath().endsWith(".mp3"));
+            }
+        });
+
+        for (int i = 0; i < songFiles.length; i++) {
+            HashMap<String, Object> song = new HashMap<>();
+            String s = songFiles[i].getName();
+
+            song.put("songName", s.substring(0, s.lastIndexOf('.')));
+            song.put("likes", 0);
+            song.put("dislikes", 0);
+            song.put("votes", 0);
+
+            mAdapter.addItem(song);
+        }
+
     }
 
-    public void playSound(String SongName)
+    public void playSong(String songName)
     {
         if (mp == null)
         {
-            if ( SongName.equals("change") )
-            {
-                mp = MediaPlayer.create(DJActivity.this, R.raw.change);
+            mp = MediaPlayer.create(DJActivity.this, Uri.parse(path + songName));
 
-            }
-            else if (SongName.equals("cherry"))
-            {
-                mp = MediaPlayer.create(DJActivity.this, R.raw.cherry);
-
-            }
-            else
-            {
-                mp = MediaPlayer.create(DJActivity.this, R.raw.love);
-            }
             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
             {
                 @Override
@@ -104,6 +104,68 @@ public class DJActivity extends AppCompatActivity {
             mp.release();
             mp = null;
         }
+    }
+
+    private class MyCustomAdapter extends BaseAdapter {
+
+        private LayoutInflater mInflater;
+
+        public MyCustomAdapter() {
+            mInflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        public void addItem(final HashMap<String, Object> item) {
+            mData.add(item);
+            notifyDataSetChanged();
+        }
+
+        public int getCount() {
+            return mData.size();
+        }
+
+
+        public HashMap<String, Object> getItem(int position) {
+            return mData.get(position);
+        }
+
+
+        public long getItemId(int position) {
+            return position;
+        }
+
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            if (convertView == null) {
+                convertView = mInflater.inflate(R.layout.line, null);
+                holder = new ViewHolder();
+                holder.songNameText = (TextView)convertView.findViewById(R.id.songNameText);
+                holder.likesText = (TextView) convertView.findViewById(R.id.likesText);
+                holder.dislikesText = (TextView) convertView.findViewById(R.id.dislikesText);
+                holder.votesText = (TextView) convertView.findViewById(R.id.votesText);
+                holder.playButtonImage = (ImageView) convertView.findViewById(R.id.playButtonImage);
+
+
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder)convertView.getTag();
+            }
+            holder.songNameText.setText(((String)mData.get(position).get("songName")) + "      ");
+            holder.likesText.setText("" + ((int)mData.get(position).get("likes")) + " likes      ");
+            holder.dislikesText.setText("" + ((int)mData.get(position).get("dislikes")) + " dislikes      ");
+            holder.votesText.setText("" + ((int)mData.get(position).get("votes")) + " votes      ");
+            holder.playButtonImage.setImageResource(R.drawable.baseline_play_circle_outline_24);
+
+            return convertView;
+        }
+
+    }
+
+    public static class ViewHolder {
+        public TextView songNameText;
+        public TextView likesText;
+        public TextView dislikesText;
+        public TextView votesText;
+        public ImageView playButtonImage;
     }
 
 }
